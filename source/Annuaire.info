@@ -22,3 +22,6 @@ Document doc = docBuilder.parse(new File(...));
 //On récupère les arguments pour la construction de Chaine
 String arguments = doc.getElementsByTagName("service").item(0).getAttributes().getNamedItem("args").getNodeValue();
 
+/*class Annuaire extends UnicastRemoteObject
+class Chaine extends UnicastRemoteObject */
+

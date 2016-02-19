@@ -24,6 +24,7 @@ public class LookForHotel{
 	 * @throws RemoteException
 	 */
 	public long call() {
+		return 0;
 		// ...
 	}
 
