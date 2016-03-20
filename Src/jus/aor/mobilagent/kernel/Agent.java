@@ -1,6 +1,6 @@
 package jus.aor.mobilagent.kernel;
 
-public class AgentServer implements _Agent{
+public class Agent implements _Agent{
 
 	public void run() {
 		// TODO Auto-generated method stub
