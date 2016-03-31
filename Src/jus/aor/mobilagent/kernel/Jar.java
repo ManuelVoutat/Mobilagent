@@ -79,11 +79,13 @@ public class Jar implements Iterable<Map.Entry<String,byte[]>>, Serializable{
    * @param name le nom de la classe.
    * @return le contenu de la classe ou nul si la classe n'existe pas.
    */
-	public byte[] getClass(String name){ return getResource(formatClassName(name));}
+	public byte[] getClass(String name){ 
+		return getResource(formatClassName(name));}
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
-	public Iterator<Map.Entry<String,byte[]>> iterator(){return contents.entrySet().iterator();}
+	public Iterator<Map.Entry<String,byte[]>> iterator(){
+		return contents.entrySet().iterator();}
 	/**
 	 * @return itérable des classes du jar
 	 */

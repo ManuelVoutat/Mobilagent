@@ -18,16 +18,19 @@ class IOHandler extends Handler {
 		io = new Dialogue();
 		io.setOut();
 	}
+	
 	/* (non-Javadoc)
 	 * @see java.util.logging.Handler#close()
 	 */
 	@Override
 	public void close() throws SecurityException{}
+	
 	/* (non-Javadoc)
 	 * @see java.util.logging.Handler#flush()
 	 */
 	@Override
 	public void flush(){}
+	
 	/* (non-Javadoc)
 	 * @see java.util.logging.Handler#publish(java.util.logging.LogRecord)
 	 */

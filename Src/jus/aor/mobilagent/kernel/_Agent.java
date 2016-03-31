@@ -13,6 +13,16 @@ public interface _Agent extends java.io.Serializable, Runnable {
 	 * @param serverName le nom logique du serveur d'agent
 	 */
 	public void init(AgentServer agentServer, String serverName);
+	
+	/**
+	 * Initialise l'agent lors de son déploiement sur un des serveurs du bus.
+	 * @param loader le loader attribué pour cet agent
+	 * @param server le server actuel pour cet agent
+	 * @param serverName le nom logique du serveur d'agent
+	 * @throws UnknownHostException 
+	 */
+	public void init(BAMAgentClassLoader loader, AgentServer server, String serverName);
+	
 	/**
 	 * Initialise l'agent lors de son déploiement sur un des serveurs du bus.
 	 * @param server le server actuel pour cet agent
@@ -20,9 +30,20 @@ public interface _Agent extends java.io.Serializable, Runnable {
 	 * @throws UnknownHostException 
 	 */
 	public void reInit(AgentServer server, String serverName);
+	
 	/**
 	 * ajoute une étape en fin de la feuille de route de l'agent.
 	 * @param etape l'étape à ajouter
-	 */
+	 */	
 	public void addEtape(Etape etape);
+	
+	/**
+	 * Action a executer sur le server
+	 */
+	public void execute();
+	
+	/**
+	 * deplace l'agent
+	 */
+	 public void move();
 }

@@ -4,6 +4,7 @@
 package jus.aor.mobilagent.kernel;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -57,7 +58,7 @@ public class Starter{
 			/* Mise en place du logger pour tracer l'application */
 			String loggerName = "jus/aor/mobilagent/"+InetAddress.getLocalHost().getHostName()+"/"+args[1];
 			logger = Logger.getLogger(loggerName);
-//			logger.setUseParentHandlers(false);
+			logger.setUseParentHandlers(false);
 			logger.addHandler(new IOHandler());
 			logger.setLevel(level);
 			/* Récupération d'informations de configuration */
@@ -77,12 +78,24 @@ public class Starter{
 	}
 	@SuppressWarnings("unchecked")
 	protected void createServer(int port, String name) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		loader = new BAMServerClassLoader(new URL[]{new URL("file:///.../MobilagentServer.jar")});
-		classe = (Class<jus.aor.mobilagent.kernel.Server>)Class.forName("jus.aor.mobilagent.kernel.Server",true,loader);
+		//Charge le .jar du Server qui doit etre nommé MobilagentServer.jar
+//		loader = new BAMServerClassLoader(new URL[]{new URL("file:///.../MobilagentServer.jar")});
+		
+//		loader = new BAMServerClassLoader(new URL[]{new URL(doc.getElementsByTagName("jar").item(0).getAttributes().getNamedItem("value").getNodeValue())});
+		try {
+			loader = new BAMServerClassLoader(new URL[]{new URL("file:/"+System.getProperty("user.dir")+"/MobilagentServer.jar")});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//Cherche la classe Server dedans
+		classe = (Class<jus.aor.mobilagent.kernel.Server>) Class.forName("jus.aor.mobilagent.kernel.Server",true,loader);
+		//instancie un server par un appel au constructeur
 		server = classe.getConstructor(int.class,String.class).newInstance(port,name);
 	}
+	
 	/**
-	 * Ajoute les services définis dans le fichier de configuration
+	 * Ajoute les services définis dans le fichier de configuration xml passe en argument
 	 */
 	protected void addServices() {
 		NamedNodeMap attrs;
@@ -179,7 +192,8 @@ public class Starter{
 	 * @param args
 	 */
 	public static void main(String... args) {
-		if(System.getSecurityManager() == null)System.setSecurityManager(new RMISecurityManager());
+		if(System.getSecurityManager() == null)
+			System.setSecurityManager(new RMISecurityManager());
 		new Starter(args);
 	}
 }

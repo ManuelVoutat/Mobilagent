@@ -1,25 +1,56 @@
 package jus.aor.mobilagent.kernel;
 
-public class AgentServer implements _Agent{
+import java.util.LinkedList;
+import java.util.List;
 
-	public void run() {
-		// TODO Auto-generated method stub
-		
+public class AgentServer extends Thread{
+
+	//Port d'ecoute du serveur
+	protected int port;
+	
+	protected String name;
+	//Services qu'offre le serveur
+	protected List<_Service> services;
+	//AgentClassLoader associé
+	protected BAMAgentClassLoader agentClassLoader;
+	
+	/**
+	 * Initialisation du serveur
+	 * @param name le nom du serveur
+	 * @param port le numero du port d'ecoute
+	 */
+	public AgentServer(String name, int port){
+		this.name = name;
+		this.port = port;
+		this.services = new LinkedList<>();
 	}
-
-	public void init(AgentServer agentServer, String serverName) {
-		// TODO Auto-generated method stub
-		
+	
+	/**
+	 * Ajout un service sur le serveur
+	 * @param service le service a ajouter
+	 */
+	public void addService(_Service service){
+			this.services.add(service);
 	}
-
-	public void reInit(AgentServer server, String serverName) {
-		// TODO Auto-generated method stub
-		
+	
+	/**
+	 * Recupere le service
+	 */
+	public _Service getService(){
+		//TODO
+		return null;
 	}
-
-	public void addEtape(Etape etape) {
-		// TODO Auto-generated method stub
-		
+	
+	/**
+	 * Lance un Agent
+	 * @param agent l'agent a demarrer
+	 */
+	public void startAgent(_Agent agent){
+		agent.init(this.agentClassLoader,this, this.name);
 	}
-
+	
+	public void run(){
+		//TODO
+	}
+	
 }
