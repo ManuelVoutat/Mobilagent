@@ -99,8 +99,9 @@ public final class Server {
 				agent.addEtape(new Etape(new URI(etapeAddress.get(i)), 
 						(_Action) Class.forName(etapeAction.get(i), true, agentLoader).
 						getConstructors()[0].
-						newInstance(null)));
+						newInstance((Object[])null)));
 			}
+			agent.run();
 		}catch(Exception ex){
 			logger.log(Level.FINE," erreur durant le lancement du serveur"+this,ex);
 			return;
