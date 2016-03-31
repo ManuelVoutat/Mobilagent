@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
  * Définit la feuille de route que l'agent va suivre
  * @author  Morat
  */
-class Route implements Iterable<Etape>, Serializable{
+public class Route implements Iterable<Etape>, Serializable{
 	private static final long serialVersionUID = 9081294824590167316L;
 	/** la liste des étapes à parcourir autres que la dernière */
 	protected List<Etape> route;

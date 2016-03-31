@@ -15,22 +15,25 @@ public class BAMServerClassLoader extends URLClassLoader{
 	private Map<String, Class<?>> contents;
 	
 	
-	public BAMServerClassLoader(URL[] urls) throws JarException, IOException {
+	public BAMServerClassLoader(URL[] urls)  {
 		super(urls);
 		contents = new HashMap<>();
 		
 		for(URL url : urls) 
-			addToContents(url);
+			addJar(url);
 	}
 
 	/**
 	 * Fusionne le contenu d'un jar avec les class pré-chargés
 	 * @param url l'url
-	 * @throws JarException
-	 * @throws IOException
 	 */
-	public void addToContents (URL url ) throws JarException, IOException {
-		Jar jar = new Jar(url.getPath());
+	public void addJar (URL url ) {
+		Jar jar = null;
+		try {
+			jar = new Jar(url.getPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		for (Iterator it = jar.classIterator().iterator(); it.hasNext();) {
 			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
@@ -41,7 +44,7 @@ public class BAMServerClassLoader extends URLClassLoader{
 	public Class<?> getClass(String classname) {
 		if(contents.containsKey(classname))
 			return contents.get(classname);
-		
-		return null; 
+		else
+			throw new RuntimeException("Aucune class trouvé pour : "+classname);
 	}
 }
