@@ -24,6 +24,7 @@ public class Hello extends Agent{
 	  */
 	 public Hello(Object... args) {
 		 super();
+		 System.out.println("Hello");
 	}
 		// ...
 	

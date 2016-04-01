@@ -2,6 +2,8 @@
 <!DOCTYPE HTML PUBLIC  "-//W3C//DTD HTML 4.0 Transitional//EN" "Server.dtd"> 
 <server>
 	<port value="2222"/>
-	<jar value="file:///.../MobilagentServer.jar"/>
 </server>
 
+<server>
+	<port value="3333"/>
+</server>

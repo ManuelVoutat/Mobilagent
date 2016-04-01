@@ -18,4 +18,10 @@ public interface _Service<T> {
 	 * @throws IllegalArgumentException 
 	 */
 	public T call(Object... params) throws IllegalArgumentException;
+
+	/**
+	 * Renvoie le nom du service
+	 * @return Le nom du service
+	 */
+	public String getServiceName();
 }

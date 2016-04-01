@@ -11,42 +11,16 @@ import java.util.jar.JarException;
 
 public class BAMServerClassLoader extends URLClassLoader{
 
-	
-	private Map<String, Class<?>> contents;
-	
-	
-	public BAMServerClassLoader(URL[] urls)  {
+	public BAMServerClassLoader(URL[] urls) {
 		super(urls);
-/*		contents = new HashMap<>();
-		
-		for(URL url : urls) 
-			addJar(url);*/
+	}
+	
+	public BAMServerClassLoader(URL[] urls, ClassLoader loader) {
+		super(urls, loader);
 	}
 
-	/**
-	 * Fusionne le contenu d'un jar avec les class pré-chargés
-	 * @param url l'url
-	 */
-	public void addJar (URL url ) {
-		addURL(url);
-/*		Jar jar = null;
-		try {
-			jar = new Jar(url.getPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		for (Iterator it = jar.classIterator().iterator(); it.hasNext();) {
-			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
-			contents.put(entry.getKey(),  defineClass(entry.getValue(), 0, entry.getValue().length));
-		}*/
+	protected void addURL(URL url) {
+		super.addURL(url);
 	}
 	
-	public Class<?> getClass(String className) {
-		return this.getClass(className);
-		/*if(contents.containsKey(classname))
-			return contents.get(classname);
-		else
-			throw new RuntimeException("Aucune class trouvé pour : "+classname);*/
-	}
 }

@@ -5,6 +5,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
 
 public class Agent implements _Agent{
@@ -19,32 +21,58 @@ public class Agent implements _Agent{
 	protected BAMAgentClassLoader loader;
 	protected Jar jar;
 	protected AgentServer agentServer;
-	protected _Action doIt = _Action.NIHIL;
-	
-	public Agent(){
-	/*	this.route = new Route(new Etape(new URI(agentServer._name+":"+agentServer._port), doIt));
-		this.jar = new Jar(fileName);
-		this.loader = new BAMAgentClassLoader(null);*/
-	}
+	private String serverName;
 	
 	public void run() {
-		//Execution de l'action
+
+		System.out.println("Agent sur ce server : "+this.serverName);
+		
 		this.execute();
 		
-		//Passage au prochain serveur
-		this.move();
-		
+		if(this.route.hasNext) {
+			Etape etape = this.route.get();
+			
+			Socket server = null;
+			try {
+				// Client connected
+				server = new Socket(etape.server.getHost(), etape.server.getPort());
+				System.out.println("Connection a " + server.getInetAddress());
+			
+				OutputStream os = server.getOutputStream();
+
+				ObjectOutputStream oos = new ObjectOutputStream(os);
+				//Envoie de l'agent au server
+				oos.writeObject(jar);
+				oos.writeObject(this);
+				oos.close();
+					
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	public void init(AgentServer agentServer, String serverName) {
-		// TODO Auto-generated method stub
+		System.out.println(" Deploiment de l'agent sur " + serverName);
+		this.agentServer = agentServer;
+		this.serverName = serverName;
+		
+		if(this.route == null)
+			try {
+				this.route.add(new Etape(new URI(this.serverName),_Action.NIHIL));
+			} catch (URISyntaxException e){
+				e.printStackTrace();
+			}
 		
 	}
 
-	public void init(BAMAgentClassLoader loader, AgentServer server,String serverName) {
+	public void init(BAMAgentClassLoader loader, AgentServer agentServer, String serverName) {
+		System.out.println(" Initiating the agent on " + serverName);
+		this.agentServer = agentServer;
+		this.serverName = serverName;
 		this.loader = loader;
-		this.init(server, serverName);
-		
 	}
 	
 	public void reInit(AgentServer server, String serverName) {
@@ -57,9 +85,7 @@ public class Agent implements _Agent{
 	}
 
 	public void move() {
-		
-
-		if (this.route.hasNext()){
+	/*	if (this.route.hasNext()){
 			//Socket pour le prochain server
 			Socket socket;
 			
@@ -81,15 +107,13 @@ public class Agent implements _Agent{
 			catch (IOException e){
 				e.printStackTrace();
 			}
-		}
-		
+		}*/
 	}
 	
 	public void execute() {
-		if (this.route.hasNext()) {
+		if (this.route.hasNext) {
 			Etape etape = this.route.next();
 			etape.action.execute();
-			System.out.println("Etape : "+etape+" a effectué l'action "+etape.action);
 		}
 		
 	}
