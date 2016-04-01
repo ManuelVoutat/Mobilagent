@@ -45,7 +45,7 @@ public final class Server {
 			loggerName = "jus/aor/mobilagent/"+InetAddress.getLocalHost().getHostName()+"/"+this.name;
 			logger=Logger.getLogger(loggerName);
 			/* démarrage du server d'agents mobiles attaché à cette machine */
-			new AgentServer(name, port).start();
+			new AgentServer(name, port,loader).start();
 			/* temporisation de mise en place du server d'agents */
 			Thread.sleep(1000);
 		}catch(Exception ex){
@@ -71,7 +71,7 @@ public final class Server {
 			//Instancie ce service au sein d'un objet de type _Service
 			_Service<?> service = (_Service<?>) serviceClass.getConstructors()[0].newInstance(args);
 			//Ajoute le service a l'agentServer
-			agentServer.addService(service);
+			agentServer.addService(service,classeName);
 
 		}catch(Exception ex){
 			logger.log(Level.FINE," erreur durant le lancement du serveur"+this,ex);
@@ -107,6 +107,8 @@ public final class Server {
 			return;
 		}
 	}
+	
+	//-.- 
 	/**
 	 * Primitive permettant de "mover" un agent sur ce serveur en vue de son exécution
 	 * immédiate.

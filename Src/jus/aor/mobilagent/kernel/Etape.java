@@ -25,6 +25,22 @@ public class Etape implements Serializable{
 		this.server = server;
 		this.action = action;
 	}
+	
+	/**
+	 * Renvoie le serveur
+	 */
+	
+	public URI getServer(){
+		return this.server;
+	}
+	
+	/**
+	 * Renvoie l'action
+	 */
+	public _Action getAction(){
+		return this.action;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

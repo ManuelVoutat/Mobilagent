@@ -1,5 +1,12 @@
 package jus.aor.mobilagent.kernel;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.URI;
+import java.util.NoSuchElementException;
+
 public class Agent implements _Agent{
 
 	/**
@@ -15,13 +22,17 @@ public class Agent implements _Agent{
 	protected _Action doIt = _Action.NIHIL;
 	
 	public Agent(){
-		this.route = new Route(new Etape(new URI(agentServer._name+":"+agentServer._port), doIt));
+	/*	this.route = new Route(new Etape(new URI(agentServer._name+":"+agentServer._port), doIt));
 		this.jar = new Jar(fileName);
-		this.loader = new BAMAgentClassLoader(null);
+		this.loader = new BAMAgentClassLoader(null);*/
 	}
 	
 	public void run() {
-		// TODO Auto-generated method stub
+		//Execution de l'action
+		this.execute();
+		
+		//Passage au prochain serveur
+		this.move();
 		
 	}
 
@@ -31,7 +42,8 @@ public class Agent implements _Agent{
 	}
 
 	public void init(BAMAgentClassLoader loader, AgentServer server,String serverName) {
-		// TODO Auto-generated method stub
+		this.loader = loader;
+		this.init(server, serverName);
 		
 	}
 	
@@ -45,7 +57,31 @@ public class Agent implements _Agent{
 	}
 
 	public void move() {
-		// TODO Auto-generated method stub
+		
+
+		if (this.route.hasNext()){
+			//Socket pour le prochain server
+			Socket socket;
+			
+			try {
+				URI server = this.route.get().getServer();
+				socket = new Socket(server.getHost(),server.getPort());
+				
+				//Envoie de l'agent sur le serveur
+				OutputStream os;
+				os = socket.getOutputStream();
+				ObjectOutputStream oos;
+				
+				oos = new ObjectOutputStream(os);
+				oos.writeObject(this);
+			}
+			catch (NoSuchElementException e){
+				e.printStackTrace();
+			}
+			catch (IOException e){
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	

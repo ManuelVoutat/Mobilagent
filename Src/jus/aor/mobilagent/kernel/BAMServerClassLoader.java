@@ -28,7 +28,7 @@ public class BAMServerClassLoader extends URLClassLoader{
 	 * @param url l'url
 	 */
 	public void addJar (URL url ) {
-		addURL(url)
+		addURL(url);
 /*		Jar jar = null;
 		try {
 			jar = new Jar(url.getPath());
