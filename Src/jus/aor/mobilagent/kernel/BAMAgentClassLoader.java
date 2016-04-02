@@ -20,7 +20,7 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 	private ClassLoader parent = null;
 	
 	public BAMAgentClassLoader(URL[] urls) {
-		super(new URL[] {}); //Fake : to not allow the parent to have our classes
+		super(new URL[] {}); //Fake
 		this.contents = new HashMap<String, Class<?>>();
 		for(URL url : urls)
 			addJar(url);
@@ -28,8 +28,8 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 	
 	public BAMAgentClassLoader(URL[] urls, ClassLoader loader) {
 		super(new URL[]{},loader);
-		contents = new HashMap<String, Class<?>>();
-		parent = loader;
+		this.contents = new HashMap<String, Class<?>>();
+		this.parent = loader;
 		for(URL url : urls)
 			addJar(url);
 	}
@@ -55,7 +55,10 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
 			String className = entry.getKey();
 			className = className.substring(className.lastIndexOf('/')+1);
-			contents.put(className,  defineClass(entry.getValue(), 0, entry.getValue().length));
+			byte[] b = entry.getValue();
+			Class<?> c= null;
+			c = defineClass(b, 0, entry.getValue().length);
+			this.contents.put(className,  c);
 		}
 	}
 	
@@ -64,7 +67,7 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 		
 		if(contents.containsKey(classname))
 			return contents.get(classname);
-		//if we have a parent loader let's ask him
+		//Si on a un parent loader, lui demander
 		else if (parent != null)
 			return parent.loadClass(classname);
 		throw new RuntimeException("Pas de classe trouvé : "+classname);

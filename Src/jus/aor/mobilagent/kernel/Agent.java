@@ -21,14 +21,31 @@ public class Agent implements _Agent{
 	protected Jar jar;
 	protected AgentServer agentServer;
 	private String serverName;
+	private boolean finish;
 	
 	public void run() {
 
 		System.out.println("Agent sur ce server : "+this.serverName);
 		
-		this.execute();
-		
-		this.move();
+		Etape etape = this.route.next();
+		//effectue l'action
+		if(this.finish==true)
+			execute(this.retour());
+		else
+		{
+			execute(etape.action);
+			if(this.route.hasNext)
+			{
+				//L'agent se connecte au server suivant
+				etape = this.route.get();
+				move(etape.server);
+			}
+			else if(this.finish == false)
+			{
+				this.finish = true;
+				move(this.route.next().server);
+			}
+		}
 	}
 
 	public void init(AgentServer agentServer, String serverName) {
@@ -38,8 +55,9 @@ public class Agent implements _Agent{
 		
 		if(this.route == null)
 			try {
-				this.route = new Route(new Etape(new URI(this.serverName), _Action.NIHIL));
-				//this.route.add(new Etape(new URI(this.serverName),_Action.NIHIL));
+				URI uri = new URI(this.serverName);
+				this.route = new Route(new Etape(uri, this.retour()));
+				this.route.add(new Etape(new URI(this.serverName), _Action.NIHIL));
 			} catch (URISyntaxException e){
 				e.printStackTrace();
 			}
@@ -53,9 +71,10 @@ public class Agent implements _Agent{
 		this.serverName = serverName;
 		if (this.route == null)
 			try {
-				this.route = new Route(new Etape(new URI(this.serverName), _Action.NIHIL));
+				URI uri = new URI(this.serverName);
+				this.route = new Route(new Etape(uri, this.retour()));
+				this.route.add(new Etape(new URI(this.serverName), _Action.NIHIL));
 			} catch (Exception e) {
-				System.out.println(e);
 				e.printStackTrace();
 			}
 	}
@@ -69,14 +88,16 @@ public class Agent implements _Agent{
 		this.route.add(etape);
 	}
 
-	public void move() {
+	public void move(URI Userver) {
 		Etape etape = this.route.get(); 
 		
 		Socket server = null;
 		try {
 			// Connection Client
-			System.out.println(" Tentative de connection : " +etape.server.getHost()+ ":" + etape.server.getPort());
-			server = new Socket(/*etape.server.getHost()*/"localhost", etape.server.getPort());
+			System.out.println(" Tentative de connection : " +Userver.getHost()+ ":" + etape.server.getPort());
+			server = new Socket("localhost", Userver.getPort());
+
+			//server = new Socket(/*etape.server.getHost()*/"localhost", etape.server.getPort());
 			System.out.println("Connection a " + server.getInetAddress());
 
 			OutputStream os = server.getOutputStream();
@@ -94,15 +115,20 @@ public class Agent implements _Agent{
 		}
 	}
 	
-	public void execute() {
-		if (this.route.hasNext) {
-			Etape etape = this.route.next();
-			etape.action.execute();
-		}
+	public void execute(_Action action) {
+		action.execute();
 	}
 		
 	public void setJar(Jar jar) {
 		this.jar = jar;
+	}
+	
+	/**
+	 * Action a effectuer sur le server de retour
+	 */
+	protected _Action retour()
+	{
+		return _Action.NIHIL;
 	}
 
 }

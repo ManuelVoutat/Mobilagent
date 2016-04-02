@@ -3,12 +3,14 @@
  */
 package jus.aor.mobilagent.kernel;
 
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import jus.aor.mobilagent.kernel.BAMAgentClassLoader;
 import jus.aor.mobilagent.kernel._Agent;
@@ -30,6 +32,8 @@ public final class Server {
 	protected Logger logger=null;
 	/** Le ClassLoader pour les agents */
 	protected BAMAgentClassLoader loader;
+	/** Le ClassLoader pour le server */
+	protected BAMServerClassLoader serverLoader;
 	
 	/**
 	 * Démarre un serveur de type mobilagent 
@@ -41,10 +45,12 @@ public final class Server {
 		try {
 			this.port=port;
 			/* mise en place du logger pour tracer l'application */
-			loggerName = "jus/aor/mobilagent/"+InetAddress.getLocalHost().getHostName()+"/"+this.name;
-			logger=Logger.getLogger(loggerName);
+			this.loggerName = "jus/aor/mobilagent/"+InetAddress.getLocalHost().getHostName()+"/"+this.name;
+			this.logger=Logger.getLogger(loggerName);
+			
+			this.serverLoader = new BAMServerClassLoader(new URL[]{});
 			/* démarrage du server d'agents mobiles attaché à cette machine */
-			new AgentServer(name, port,loader).start();
+			new AgentServer(name, port,this.loader).start();
 			/* temporisation de mise en place du server d'agents */
 			Thread.sleep(1000);
 		}catch(Exception ex){
@@ -64,18 +70,18 @@ public final class Server {
 			System.out.println(" Adding a service ");
 			logger.log(Level.FINE," Adding a service ");
 			//Charge le code du service dans le BAMServerClassLoader
-			loader.addJar(new URL(codeBase));
 			
 			//Recupere l'objet class de la classe className du Jar
 			@SuppressWarnings("rawtypes")
-			Class serviceClass = Class.forName(classeName, true, loader);
+			Class serviceClass = Class.forName(classeName, true, this.loader);
 			//Instancie ce service au sein d'un objet de type _Service
-			_Service<?> service = (_Service<?>) serviceClass.getConstructors()[0].newInstance(args);
+			@SuppressWarnings("unchecked")
+			_Service<?> service = (_Service<?>) serviceClass.getConstructor(Object[].class).newInstance(new Object[]{args});
 			//Ajoute le service a l'agentServer
-			agentServer.addService(service,classeName);
+			this.agentServer.addService(service,classeName);
 
 		}catch(Exception ex){
-			logger.log(Level.FINE," Erreur durant le lancement du serveur"+this,ex);
+			this.logger.log(Level.FINE," Erreur durant le lancement du serveur"+this,ex);
 			return;
 		}
 	}
@@ -93,16 +99,22 @@ public final class Server {
 			logger.log(Level.FINE," Deploiment d'un agent ");
 			String jarPath = "file:///"+System.getProperty("user.dir")+codeBase;
 			//Le deploiement d'un agent se fait sur un classLoader fils du classLOader actuel
-			BAMAgentClassLoader agentLoader = new BAMAgentClassLoader(new URL[]{new URL(jarPath)},this.getClass().getClassLoader());
+			BAMAgentClassLoader agentLoader = new BAMAgentClassLoader(new URL[]{},this.getClass().getClassLoader());
+			agentLoader.addJar(new URL(jarPath));
 			Class<?> agentClass = Class.forName(classeName, true, agentLoader);
 			System.out.println(" Agent deployé ");
 			Agent agent = (Agent) agentClass.getConstructor(Object[].class).newInstance(new Object[]{args});
 			agent.setJar(new Jar(System.getProperty("user.dir")+codeBase));
-			agent.init(agentLoader, agentServer, name);
+			agent.init(agentServer, "mobilagent://" + name + ":" + port +"/");
 			for(int i=0; i<etapeAddress.size(); i++) {
-				Class<?> actionClass = agentLoader.getClass(etapeAction.get(i));
-				_Action action = (_Action) actionClass.getConstructor().newInstance();
-				Etape etape =  new Etape(new URI(etapeAddress.get(i)), action);
+				Field field = agentClass.getDeclaredField(etapeAction.get(i));
+				field.setAccessible(true);
+				_Action action = (_Action) field.get(agent);
+				
+				//Class<?> actClass = agentLoader.getClass(etapeAction.get(i));
+				//_Action act = (_Action) actClass.getConstructor().newInstance();
+				URI server = new URI(etapeAddress.get(i));
+				Etape etape =  new Etape(server, action);
 				agent.addEtape(etape);
 			}
 			new Thread(agent).start();

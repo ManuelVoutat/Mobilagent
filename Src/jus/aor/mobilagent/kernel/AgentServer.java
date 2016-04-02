@@ -85,10 +85,10 @@ public class AgentServer extends Thread{
 			ObjectInputStream ois = new ObjectInputStream(is);
 			
 			//gets the serializable jar first
-			this.agentClassLoader = new BAMAgentClassLoader(new URL[]{}, this.serverClassLoader);
+			this.agentClassLoader = new BAMAgentClassLoader(new URL[]{}, this.getClass().getClassLoader());
 			Jar jar = (Jar) ois.readObject();
 			//we load the jar in the new BAMAgent
-			this.agentClassLoader.addJar(jar);
+			this.agentClassLoader.addJar(new Jar(System.getProperty("user.dir")+"/Hello.jar"));
 			
 			//on recupere l'agent
 			_Agent agent = (_Agent) ois.readObject();

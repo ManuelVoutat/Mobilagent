@@ -191,11 +191,10 @@ public class Starter{
 	 * Application starter
 	 * @param args
 	 */
-	@SuppressWarnings("deprecation")
 	public static void main(String... args) {
 	//	if(System.getSecurityManager() == null) // Pour le RMI
 			System.setSecurityManager(new RMISecurityManager());
-		new Starter(args);
+		new Starter("Configurations/hostel.server1.xml", "Server1");
 	}
 }
 
