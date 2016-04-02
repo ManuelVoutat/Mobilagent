@@ -21,9 +21,9 @@ public class LookForHotel extends Agent{
 	/** le critère de localisaton choisi */
 	private String localisation;
 	/** Les hotels a récuperer */
-	private LinkedList<Hotel> hotels;
+	private List<Hotel> hotels;
 	/** Les numeroas dans le server annuaire */
-	private LinkedList<Numero> numeros;
+	private List<Numero> numeros;
 	
 	/**
 	 * Définition de l'objet représentant l'interrogation.
@@ -31,7 +31,8 @@ public class LookForHotel extends Agent{
 	 *          de localisation
 	 */
 	public LookForHotel(String... args){
-		localisation = args[0];
+		super();
+		localisation = (String) args[0];
 		hotels = new LinkedList<Hotel>();
 		numeros = new LinkedList<Numero>();
 	}
@@ -47,9 +48,10 @@ public class LookForHotel extends Agent{
 	public _Action findHotel = new _Action() {
 		private static final long serialVersionUID = 1L;
 		public void execute() {
-			@SuppressWarnings("unchecked")
-			_Service<List<Hotel>> service = (_Service<List<Hotel>>) agentServer.getService("Hotels");
-			hotels.addAll(service.call(new Object[]{localisation}));
+		System.out.println("Agents asking service : Hotels");
+		@SuppressWarnings("unchecked")
+		_Service<List<Hotel>> service = (_Service<List<Hotel>>) agentServer.getService("Hotels");
+		hotels.addAll((List<Hotel>) service.call(localisation));
 		}
 	};
 	
@@ -58,11 +60,23 @@ public class LookForHotel extends Agent{
 		public void execute() {
 			@SuppressWarnings("unchecked")
 			_Service<Numero> service = (_Service<Numero>) agentServer.getService("Telephones");
-			for(Hotel it : hotels)
+			for(Hotel hotel : hotels)
 			{
-				numeros.add(service.call(it.name));
+				numeros.add(service.call(hotel.name));
 			}
 		}
+	};
+	
+	protected _Action retour() {
+		return new _Action() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void execute() {
+				System.out.println("Action retour de l'agent LookForHotel");
+			}
+		};
 	};
 	
 	

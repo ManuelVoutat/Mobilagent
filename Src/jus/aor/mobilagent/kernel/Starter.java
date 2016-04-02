@@ -194,7 +194,8 @@ public class Starter{
 	public static void main(String... args) {
 	//	if(System.getSecurityManager() == null) // Pour le RMI
 			System.setSecurityManager(new RMISecurityManager());
-		new Starter("Configurations/hostel.server1.xml", "Server1");
+			new Starter("Configurations/hello.server2.xml", "Server0");
+			new Starter("Configurations/hello.client1.xml", "Server1");
 	}
 }
 

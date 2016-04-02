@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 public class Agent implements _Agent{
@@ -104,6 +105,7 @@ public class Agent implements _Agent{
 
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			//Envoie de l'agent au serveur
+			System.out.println("Envoie du jar");
 			oos.writeObject(jar);
 			oos.writeObject(this);
 			oos.close();
@@ -123,6 +125,16 @@ public class Agent implements _Agent{
 		this.jar = jar;
 	}
 	
+	public void setJar (URL url ) {
+		Jar jar = null;
+		try {
+			jar = new Jar(url.getPath());
+		} catch (IOException e) {
+			System.out.println("agent l138");
+			System.out.println(e);
+		}
+		this.jar = jar;
+	}
 	/**
 	 * Action a effectuer sur le server de retour
 	 */

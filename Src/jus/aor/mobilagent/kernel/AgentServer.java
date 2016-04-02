@@ -16,13 +16,13 @@ public class AgentServer extends Thread{
 	
 	protected String name;
 	//Services qu'offre le serveur
-	@SuppressWarnings("rawtypes")
-	protected Map<String,_Service> services;
+	protected Map<String,_Service<?>> services;
 	//AgentClassLoader associé
-	protected BAMAgentClassLoader agentClassLoader;
+	//protected BAMAgentClassLoader agentClassLoader;
 	//ServerlassLoader associé
-	protected BAMServerClassLoader serverClassLoader;
+	protected BAMAgentClassLoader serverClassLoader;
 	protected ServerSocket serverSocket;
+	
 	
 	
 	/**
@@ -30,12 +30,11 @@ public class AgentServer extends Thread{
 	 * @param name le nom du serveur
 	 * @param port le numero du port d'ecoute
 	 */
-	@SuppressWarnings("rawtypes")
 	public AgentServer(String name, int port, BAMAgentClassLoader loader){
 		this.name = name;
 		this.port = port;
-		this.services = new HashMap<String, _Service>();
-		this.agentClassLoader = loader;
+		this.services = new HashMap<String, _Service<?>>();
+		this.serverClassLoader = loader;
 	}
 	
 	/**
@@ -57,8 +56,8 @@ public class AgentServer extends Thread{
 	 * Lance un Agent
 	 * @param agent l'agent a demarrer
 	 */
-	public void startAgent(_Agent agent){
-		agent.init(this.agentClassLoader, this, this.name);
+	public void startAgent(_Agent agent, BAMAgentClassLoader agentClassLoader){
+		agent.init(agentClassLoader, this, this.name);
 		//Run dnas un thread pour pouvour recevoir d'autres agents
 		new Thread(agent).start();
 	}
@@ -85,18 +84,20 @@ public class AgentServer extends Thread{
 			ObjectInputStream ois = new ObjectInputStream(is);
 			
 			//gets the serializable jar first
-			this.agentClassLoader = new BAMAgentClassLoader(new URL[]{}, this.getClass().getClassLoader());
+			BAMAgentClassLoader agentClassLoader = new BAMAgentClassLoader(new URL[]{}, serverClassLoader);
+
 			Jar jar = (Jar) ois.readObject();
 			//we load the jar in the new BAMAgent
-			this.agentClassLoader.addJar(new Jar(System.getProperty("user.dir")+"/Hello.jar"));
+			agentClassLoader.addJar(jar);
 			
 			//on recupere l'agent
-			_Agent agent = (_Agent) ois.readObject();
+			Agent agent = (Agent) ois.readObject();
 			//on initialise l'agent
 			agent.init(agentClassLoader,this,this.name);
+			agent.setJar(jar);
 			System.out.println("AgentServer " + this.name + " deploye un agent");
 			//enfin on demarre l'agent
-			startAgent(agent);
+			startAgent(agent, agentClassLoader);
 			//on ferme les streams
 			ois.close();
 			

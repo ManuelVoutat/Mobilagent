@@ -54,7 +54,7 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 			@SuppressWarnings("unchecked")
 			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
 			String className = entry.getKey();
-			className = className.substring(className.lastIndexOf('/')+1);
+			className = className.replace('/', '.');
 			byte[] b = entry.getValue();
 			Class<?> c= null;
 			c = defineClass(b, 0, entry.getValue().length);
@@ -62,14 +62,22 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 		}
 	}
 	
-	public Class<?> getClass(String classname) throws ClassNotFoundException {
-		classname = classname.replace('.', '/').concat(".class");
+	public Class<?> findClass(String classname) throws ClassNotFoundException {
 		
-		if(contents.containsKey(classname))
-			return contents.get(classname);
+		System.out.println(this.toString());
+		String classnameTmp = classname.concat(".class");
+		
+		if(contents.containsKey(classnameTmp))
+			return contents.get(classnameTmp);
 		//Si on a un parent loader, lui demander
 		else if (parent != null)
 			return parent.loadClass(classname);
+		
 		throw new RuntimeException("Pas de classe trouvé : "+classname);
 	}
+	
+	public String toString() {
+		return "Loader : "+contents.toString();
+	}
+	
 }
