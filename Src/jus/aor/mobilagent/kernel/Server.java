@@ -3,7 +3,6 @@
  */
 package jus.aor.mobilagent.kernel;
 
-import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
@@ -45,7 +44,7 @@ public final class Server {
 			loggerName = "jus/aor/mobilagent/"+InetAddress.getLocalHost().getHostName()+"/"+this.name;
 			logger=Logger.getLogger(loggerName);
 			/* démarrage du server d'agents mobiles attaché à cette machine */
-			new AgentServer(name, port).start();
+			new AgentServer(name, port,loader).start();
 			/* temporisation de mise en place du server d'agents */
 			Thread.sleep(1000);
 		}catch(Exception ex){
@@ -66,12 +65,14 @@ public final class Server {
 			logger.log(Level.FINE," Adding a service ");
 			//Charge le code du service dans le BAMServerClassLoader
 			loader.addJar(new URL(codeBase));
+			
 			//Recupere l'objet class de la classe className du Jar
+			@SuppressWarnings("rawtypes")
 			Class serviceClass = Class.forName(classeName, true, loader);
 			//Instancie ce service au sein d'un objet de type _Service
 			_Service<?> service = (_Service<?>) serviceClass.getConstructors()[0].newInstance(args);
 			//Ajoute le service a l'agentServer
-			agentServer.addService(service);
+			agentServer.addService(service,classeName);
 
 		}catch(Exception ex){
 			logger.log(Level.FINE," Erreur durant le lancement du serveur"+this,ex);
@@ -90,24 +91,23 @@ public final class Server {
 		try {
 			System.out.println(" Deploiment d'un agent ");
 			logger.log(Level.FINE," Deploiment d'un agent ");
+			String jarPath = "file:///"+System.getProperty("user.dir")+codeBase;
 			//Le deploiement d'un agent se fait sur un classLoader fils du classLOader actuel
-BAMAgentClassLoader agentLoader = new BAMAgentClassLoader(new URL[]{new URL("file:///"+codeBase)},this.getClass().getClassLoader());
-			
+			BAMAgentClassLoader agentLoader = new BAMAgentClassLoader(new URL[]{new URL(jarPath)},this.getClass().getClassLoader());
 			Class<?> agentClass = Class.forName(classeName, true, agentLoader);
 			System.out.println(" Agent deployé ");
-//			Agent agent = (Agent) agentClass.getConstructor().newInstance(args);
-			Agent agent = (Agent) agentClass.newInstance();
+			Agent agent = (Agent) agentClass.getConstructor(Object[].class).newInstance(new Object[]{args});
+			agent.setJar(new Jar(System.getProperty("user.dir")+codeBase));
 			agent.init(agentLoader, agentServer, name);
 			for(int i=0; i<etapeAddress.size(); i++) {
-				agent.addEtape(new Etape(new URI(etapeAddress.get(i)), 
-						(_Action) Class.forName(etapeAction.get(i), true, agentLoader).
-						getConstructors()[0].
-						newInstance((Object[]) null)));
+				Class<?> actionClass = agentLoader.getClass(etapeAction.get(i));
+				_Action action = (_Action) actionClass.getConstructor().newInstance();
+				Etape etape =  new Etape(new URI(etapeAddress.get(i)), action);
+				agent.addEtape(etape);
 			}
-			
-//			agent.run();
+			new Thread(agent).start();
 		}catch(Exception ex){
-			logger.log(Level.FINE," Erreur lors du lancement du serveur"+this,ex);
+			logger.log(Level.FINE," erreur durant le lancement du serveur"+this,ex);
 			return;
 		}
 	}

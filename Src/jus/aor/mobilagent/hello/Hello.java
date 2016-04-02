@@ -10,10 +10,11 @@ import jus.aor.mobilagent.kernel.Agent;
  */
 public class Hello extends Agent{
 
+	private static final long serialVersionUID = 1L;
 	private _Action doIt = new _Action() {
 		private static final long serialVersionUID = 1L;
 		public void execute() {
-			this.execute();
+//			this.execute();
 			System.out.println("Hello-action");
 		}
 		
@@ -24,7 +25,6 @@ public class Hello extends Agent{
 	  */
 	 public Hello(Object... args) {
 		 super();
-		 System.out.println("Hello");
 	}
 		// ...
 	

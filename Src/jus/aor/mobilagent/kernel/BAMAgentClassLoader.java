@@ -42,29 +42,31 @@ public class BAMAgentClassLoader extends BAMServerClassLoader {
 			e.printStackTrace();
 		}
 		
-		for (Iterator it = jar.classIterator().iterator(); it.hasNext();) {
-			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
-			contents.put(entry.getKey(),  defineClass(entry.getValue(), 0, entry.getValue().length));
-		}
+		addJar(jar);
 	}
 	
 	/**
 	 * Fusion d'un jar avec les classes
 	 */
+	@SuppressWarnings("deprecation")
 	public void addJar (Jar jar) {
-		for (Iterator it = jar.classIterator().iterator(); it.hasNext();) {
+		for (Iterator<?> it = jar.classIterator().iterator(); it.hasNext();) {
+			@SuppressWarnings("unchecked")
 			Entry<String, byte[]> entry = (Entry<String, byte[]>) it.next();
-			contents.put(entry.getKey(),  defineClass(entry.getValue(), 0, entry.getValue().length));
+			String className = entry.getKey();
+			className = className.substring(className.lastIndexOf('/')+1);
+			contents.put(className,  defineClass(entry.getValue(), 0, entry.getValue().length));
 		}
 	}
 	
 	public Class<?> getClass(String classname) throws ClassNotFoundException {
-		classname.replace('.', '/').concat(".class");
+		classname = classname.replace('.', '/').concat(".class");
+		
 		if(contents.containsKey(classname))
 			return contents.get(classname);
 		//if we have a parent loader let's ask him
 		else if (parent != null)
 			return parent.loadClass(classname);
-		throw new RuntimeException("No class of that name found : "+classname);
+		throw new RuntimeException("Pas de classe trouvé : "+classname);
 	}
 }

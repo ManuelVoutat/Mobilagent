@@ -6,6 +6,8 @@ package jus.aor.mobilagent.kernel;
  */
 public class ActionTest implements _Action{
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public void execute() {
 		System.out.println("ActionTest");

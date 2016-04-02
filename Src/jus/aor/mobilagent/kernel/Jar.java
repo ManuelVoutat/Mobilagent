@@ -46,6 +46,7 @@ public class Jar implements Iterable<Map.Entry<String,byte[]>>, Serializable{
 		
 		FileInputStream fis = new FileInputStream(fileName);
 		BufferedInputStream bis = new BufferedInputStream(fis);
+		@SuppressWarnings("resource")
 		JarInputStream jis = new JarInputStream(bis);
 		entry = null;
 		int size, sizeRead, sizeLastRead;

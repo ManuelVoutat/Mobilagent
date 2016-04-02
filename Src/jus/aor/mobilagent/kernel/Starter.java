@@ -6,7 +6,6 @@ package jus.aor.mobilagent.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +28,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author Morat 
  */
+@SuppressWarnings("deprecation")
 public class Starter{
 	/** le document xml en cours */
 	protected Document doc;
@@ -191,8 +191,9 @@ public class Starter{
 	 * Application starter
 	 * @param args
 	 */
+	@SuppressWarnings("deprecation")
 	public static void main(String... args) {
-		if(System.getSecurityManager() == null)
+	//	if(System.getSecurityManager() == null) // Pour le RMI
 			System.setSecurityManager(new RMISecurityManager());
 		new Starter(args);
 	}

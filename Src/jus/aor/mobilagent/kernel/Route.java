@@ -51,7 +51,7 @@ public class Route implements Iterable<Etape>, Serializable{
 		if(this.hasNext){
 			Etape next = route.get(0);
 			this.route.remove(0);
-			this.hasNext = (route.size() ==0);
+			this.hasNext = (route.size() !=0);
 			return next;
 		}
 		else

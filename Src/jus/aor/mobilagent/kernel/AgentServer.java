@@ -5,9 +5,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 public class AgentServer extends Thread{
@@ -17,6 +16,7 @@ public class AgentServer extends Thread{
 	
 	protected String name;
 	//Services qu'offre le serveur
+	@SuppressWarnings("rawtypes")
 	protected Map<String,_Service> services;
 	//AgentClassLoader associé
 	protected BAMAgentClassLoader agentClassLoader;
@@ -30,30 +30,27 @@ public class AgentServer extends Thread{
 	 * @param name le nom du serveur
 	 * @param port le numero du port d'ecoute
 	 */
-	public AgentServer(String name, int port){
+	@SuppressWarnings("rawtypes")
+	public AgentServer(String name, int port, BAMAgentClassLoader loader){
 		this.name = name;
 		this.port = port;
 		this.services = new HashMap<String, _Service>();
-		try {
-			serverSocket = new ServerSocket(this.port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.agentClassLoader = loader;
 	}
 	
 	/**
 	 * Ajout un service sur le serveur
 	 * @param service le service a ajouter
 	 */
-	public void addService(_Service<?> service){
-			this.services.put(service.getServiceName(),service);
+	public void addService(_Service<?> service, String classeName){
+			this.services.put(classeName,service);
 	}
 	
 	/**
 	 * Recupere le service
 	 */
-	public _Service<?> getService(String ServiceName){
-		return this.services.get(ServiceName);
+	public _Service<?> getService(String classeName){
+		return this.services.get(classeName);
 	}
 	
 	/**
@@ -69,27 +66,45 @@ public class AgentServer extends Thread{
 	public void run()
 	{
 		System.out.println("Agent en run sur " + this.name);
-		for(;;) 
+		//on crée un socket
+		try {
+			this.serverSocket = new ServerSocket(this.port);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		while(true)
 		{
-			try 
-			{
-				//Attente d'une connection
-				Socket socket = serverSocket.accept();
-				InputStream is = socket.getInputStream();
-				ObjectInputStream ois = new ObjectInputStream(is);
-				//Recuperation de la jar
-				this.agentClassLoader = new BAMAgentClassLoader(null, this.serverClassLoader);
-				Jar jar = (Jar) ois.readObject();
-				//Chargment dans la jar dans le BAM getn
-				this.agentClassLoader.addJar(jar);
-				//Recup de l'agent 
-				Agent _agent = (Agent) ois.readObject();
-				startAgent(_agent);
-				
+			System.out.println("AgentServer " + this.name + " en attente d'agent");
+			try {
+			//Acceptation 
+			Socket  socketClient = this.serverSocket.accept();
+			System.out.println("AgentServer " + this.name + " a recu un agent");
+			//on instancie les streams
+			InputStream is = socketClient.getInputStream();
+			ObjectInputStream ois = new ObjectInputStream(is);
+			
+			//gets the serializable jar first
+			this.agentClassLoader = new BAMAgentClassLoader(new URL[]{}, this.serverClassLoader);
+			Jar jar = (Jar) ois.readObject();
+			//we load the jar in the new BAMAgent
+			this.agentClassLoader.addJar(jar);
+			
+			//on recupere l'agent
+			_Agent agent = (_Agent) ois.readObject();
+			//on initialise l'agent
+			agent.init(agentClassLoader,this,this.name);
+			System.out.println("AgentServer " + this.name + " deploye un agent");
+			//enfin on demarre l'agent
+			startAgent(agent);
+			//on ferme les streams
+			ois.close();
+			
 			} catch (IOException | ClassNotFoundException e) {
+				System.out.println(e);
 				e.printStackTrace();
 			}	
 		}
-		
+	
 	}
 }

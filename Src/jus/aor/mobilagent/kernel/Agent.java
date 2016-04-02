@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.NoSuchElementException;
 
 public class Agent implements _Agent{
 
@@ -29,29 +28,7 @@ public class Agent implements _Agent{
 		
 		this.execute();
 		
-		if(this.route.hasNext) {
-			Etape etape = this.route.get();
-			
-			Socket server = null;
-			try {
-				// Client connected
-				server = new Socket(etape.server.getHost(), etape.server.getPort());
-				System.out.println("Connection a " + server.getInetAddress());
-			
-				OutputStream os = server.getOutputStream();
-
-				ObjectOutputStream oos = new ObjectOutputStream(os);
-				//Envoie de l'agent au server
-				oos.writeObject(jar);
-				oos.writeObject(this);
-				oos.close();
-					
-			} catch (UnknownHostException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
+		this.move();
 	}
 
 	public void init(AgentServer agentServer, String serverName) {
@@ -61,7 +38,8 @@ public class Agent implements _Agent{
 		
 		if(this.route == null)
 			try {
-				this.route.add(new Etape(new URI(this.serverName),_Action.NIHIL));
+				this.route = new Route(new Etape(new URI(this.serverName), _Action.NIHIL));
+				//this.route.add(new Etape(new URI(this.serverName),_Action.NIHIL));
 			} catch (URISyntaxException e){
 				e.printStackTrace();
 			}
@@ -69,10 +47,17 @@ public class Agent implements _Agent{
 	}
 
 	public void init(BAMAgentClassLoader loader, AgentServer agentServer, String serverName) {
-		System.out.println(" Initiating the agent on " + serverName);
+		System.out.println(" Deploiment de l'agent sur " + serverName);
+		this.loader = loader;
 		this.agentServer = agentServer;
 		this.serverName = serverName;
-		this.loader = loader;
+		if (this.route == null)
+			try {
+				this.route = new Route(new Etape(new URI(this.serverName), _Action.NIHIL));
+			} catch (Exception e) {
+				System.out.println(e);
+				e.printStackTrace();
+			}
 	}
 	
 	public void reInit(AgentServer server, String serverName) {
@@ -85,29 +70,28 @@ public class Agent implements _Agent{
 	}
 
 	public void move() {
-	/*	if (this.route.hasNext()){
-			//Socket pour le prochain server
-			Socket socket;
-			
-			try {
-				URI server = this.route.get().getServer();
-				socket = new Socket(server.getHost(),server.getPort());
+		Etape etape = this.route.get(); 
+		
+		Socket server = null;
+		try {
+			// Connection Client
+			System.out.println(" Tentative de connection : " +etape.server.getHost()+ ":" + etape.server.getPort());
+			server = new Socket(/*etape.server.getHost()*/"localhost", etape.server.getPort());
+			System.out.println("Connection a " + server.getInetAddress());
+
+			OutputStream os = server.getOutputStream();
+
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			//Envoie de l'agent au serveur
+			oos.writeObject(jar);
+			oos.writeObject(this);
+			oos.close();
 				
-				//Envoie de l'agent sur le serveur
-				OutputStream os;
-				os = socket.getOutputStream();
-				ObjectOutputStream oos;
-				
-				oos = new ObjectOutputStream(os);
-				oos.writeObject(this);
-			}
-			catch (NoSuchElementException e){
-				e.printStackTrace();
-			}
-			catch (IOException e){
-				e.printStackTrace();
-			}
-		}*/
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	public void execute() {
@@ -115,7 +99,10 @@ public class Agent implements _Agent{
 			Etape etape = this.route.next();
 			etape.action.execute();
 		}
+	}
 		
+	public void setJar(Jar jar) {
+		this.jar = jar;
 	}
 
 }
