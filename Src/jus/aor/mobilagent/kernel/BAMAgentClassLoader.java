@@ -1,6 +1,7 @@
 package jus.aor.mobilagent.kernel;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,8 +14,10 @@ import java.util.Map.Entry;
  * @author Quentin
  *
  */
-public class BAMAgentClassLoader extends BAMServerClassLoader {
+public class BAMAgentClassLoader extends BAMServerClassLoader implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	protected Map<String, Class<?>> contents;
 	
 	private ClassLoader parent = null;

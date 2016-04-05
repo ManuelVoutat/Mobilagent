@@ -14,8 +14,15 @@ public class Hello extends Agent{
 	private _Action doIt = new _Action() {
 		private static final long serialVersionUID = 1L;
 		public void execute() {
-//			this.execute();
-			System.out.println("Hello-action");
+			System.out.println("HELLO-ACTION");
+		}
+		
+	};
+	
+	private _Action retour = new _Action() {
+		private static final long serialVersionUID = 1L;
+		public void execute() {
+			System.out.println("HELLO-RETOUR");
 		}
 		
 	};
@@ -31,7 +38,7 @@ public class Hello extends Agent{
 	/* (non-Javadoc)
 	 * @see jus.aor.mobilagent.kernel.Agent#retour()
 	 */
-	protected _Action retour(){
-		return this.doIt;
+	public _Action retour(){
+		return this.retour;
 	}
 }

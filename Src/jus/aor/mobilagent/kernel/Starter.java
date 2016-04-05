@@ -66,11 +66,17 @@ public class Starter{
 			doc = docBuilder.parse(new File(args[0]));
 			int port=Integer.parseInt(doc.getElementsByTagName("port").item(0).getAttributes().getNamedItem("value").getNodeValue());
 			// Création du serveur
+			System.out.println("[STARTER] - Creation du server");
 			createServer(port,args[1]);
+			System.out.println("[STARTER] - Server crées");
 			// ajout des services
+			System.out.println("[STARTER] - Ajout des services");
 			addServices();
+			System.out.println("[STARTER] - Services Ajoutés");
 			// déploiement d'agents
+			System.out.println("[STARTER] - Déployment des Agents");
 			deployAgents();
+			System.out.println("[STARTER] - Agents déployés");
 		}catch(Exception ex){
 			logger.log(Level.FINE,"Ce programme nécessite un argument : <conf file> <name server>",ex);
 			return;
@@ -79,9 +85,6 @@ public class Starter{
 	@SuppressWarnings("unchecked")
 	protected void createServer(int port, String name) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		//Charge le .jar du Server qui doit etre nommé MobilagentServer.jar
-//		loader = new BAMServerClassLoader(new URL[]{new URL("file:///.../MobilagentServer.jar")});
-		
-//		loader = new BAMServerClassLoader(new URL[]{new URL(doc.getElementsByTagName("jar").item(0).getAttributes().getNamedItem("value").getNodeValue())});
 		try {
 			loader = new BAMServerClassLoader(new URL[]{new URL("file:/"+System.getProperty("user.dir")+"/MobilagentServer.jar")});
 		} catch (IOException e) {
@@ -193,9 +196,8 @@ public class Starter{
 	 */
 	public static void main(String... args) {
 	//	if(System.getSecurityManager() == null) // Pour le RMI
-			System.setSecurityManager(new RMISecurityManager());
-			new Starter("Configurations/hello.server2.xml", "Server0");
-			new Starter("Configurations/hello.client1.xml", "Server1");
+			//System.setSecurityManager(new RMISecurityManager());
+			new Starter(args);
 	}
 }
 

@@ -2,7 +2,6 @@ package jus.aor.mobilagent.lookforhotel;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
