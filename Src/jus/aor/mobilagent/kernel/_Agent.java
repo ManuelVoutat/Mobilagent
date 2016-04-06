@@ -39,12 +39,14 @@ public interface _Agent extends java.io.Serializable, Runnable {
 	public void addEtape(Etape etape);
 	
 	/**
-	 * Action a executer sur le server
+	 * Action a exécuter sur le serveur
+	 * @param action l'action à exécuter sur le serveur
 	 */
 	public void execute(_Action action);
 	
 	/**
-	 * deplace l'agent
+	 * Deplace l'agent
+	 * @param server le server
 	 */
-	 public void move(URI server);
+	public void move(URI server);
 }

@@ -40,7 +40,9 @@ public class Route implements Iterable<Etape>, Serializable{
 	 * @return la prochaine étape.
 	 */
 	Etape get() throws NoSuchElementException {
+		//Si il y a une prochaine étape 
 		if(this.hasNext) return this.route.get(0);
+		//La base de départ sinon
 		else return this.retour;
 	}
 	/**

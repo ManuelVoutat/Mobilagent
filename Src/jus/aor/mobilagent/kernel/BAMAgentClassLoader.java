@@ -18,8 +18,9 @@ public class BAMAgentClassLoader extends BAMServerClassLoader implements Seriali
 	
 	private static final long serialVersionUID = 1L;
 
+	/** Le contenu */
 	protected Map<String, Class<?>> contents;
-	
+	/** Reference vers le ClassLoader Parent */
 	private ClassLoader parent = null;
 	
 	public BAMAgentClassLoader(URL[] urls) {
@@ -67,7 +68,7 @@ public class BAMAgentClassLoader extends BAMServerClassLoader implements Seriali
 	
 	public Class<?> findClass(String classname) throws ClassNotFoundException {
 		
-		System.out.println(this.toString());
+		//System.out.println(this.toString());
 		String classnameTmp = classname.concat(".class");
 		
 		if(contents.containsKey(classnameTmp))

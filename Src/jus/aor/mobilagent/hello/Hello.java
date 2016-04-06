@@ -10,7 +10,11 @@ import jus.aor.mobilagent.kernel.Agent;
  */
 public class Hello extends Agent{
 
+	/**
+	 * l'action à entreprendre sur les serveurs visités
+	 */
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private _Action doIt = new _Action() {
 		private static final long serialVersionUID = 1L;
 		public void execute() {
@@ -30,10 +34,9 @@ public class Hello extends Agent{
 	  * construction d'un agent de type hello.
 	  * @param args aucun argument n'est requis
 	  */
-	 public Hello(Object... args) {
+	public Hello(Object... args) {
 		 super();
 	}
-		// ...
 	
 	/* (non-Javadoc)
 	 * @see jus.aor.mobilagent.kernel.Agent#retour()

@@ -66,17 +66,11 @@ public class Starter{
 			doc = docBuilder.parse(new File(args[0]));
 			int port=Integer.parseInt(doc.getElementsByTagName("port").item(0).getAttributes().getNamedItem("value").getNodeValue());
 			// Création du serveur
-			System.out.println("[STARTER] - Creation du server");
 			createServer(port,args[1]);
-			System.out.println("[STARTER] - Server crées");
 			// ajout des services
-			System.out.println("[STARTER] - Ajout des services");
 			addServices();
-			System.out.println("[STARTER] - Services Ajoutés");
 			// déploiement d'agents
-			System.out.println("[STARTER] - Déployment des Agents");
 			deployAgents();
-			System.out.println("[STARTER] - Agents déployés");
 		}catch(Exception ex){
 			logger.log(Level.FINE,"Ce programme nécessite un argument : <conf file> <name server>",ex);
 			return;
@@ -197,7 +191,7 @@ public class Starter{
 	public static void main(String... args) {
 	//	if(System.getSecurityManager() == null) // Pour le RMI
 			//System.setSecurityManager(new RMISecurityManager());
-			new Starter(args);
+		new Starter(args);
 	}
 }
 
